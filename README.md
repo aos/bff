@@ -1,4 +1,4 @@
-## gofuck
+## gofk
 
 A brainfuck interpreter in Go
 
