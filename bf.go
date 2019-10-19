@@ -14,47 +14,77 @@ import (
 //	<	60
 //	[	91
 //	]	93
-//	.	46
-//	,	44
+//	.	46 - output
+//	,	44 - input
 //
 
-const example = ">><-++].,"
+const helloWorld = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
 
 func main() {
-	var s []int // bracket stack
+	tape := make([]byte, 30000)
+	ip := 0
+	dp := 0
 
-	for i, c := range example {
+	var s []int // bracket stack
+	skipLoop := false
+
+	for ip < len(helloWorld) {
+		c := helloWorld[ip]
+
+		if skipLoop {
+			ip++
+			continue
+		}
+
 		switch c {
 		// +
 		case 43:
-			fmt.Println("+")
+			tape[dp]++
 		// -
 		case 45:
-			fmt.Println("-")
+			tape[dp]--
 		// >
 		case 62:
-			fmt.Println(">")
+			dp++
 		// <
 		case 60:
-			fmt.Println("<")
+			dp--
 		// .
 		case 46:
-			fmt.Println(".")
+			fmt.Print(string(tape[dp]))
 		// ,
 		case 44:
 			fmt.Println(",")
 		// [
 		case 91:
-			s = append(s, i)
+			if tape[dp] <= 0 {
+				skipLoop = true
+			}
+
+			s = append(s, ip)
 		// ]
 		case 93:
 			if len(s) <= 0 {
-				log.Fatalf("ERROR: Mismatched brackets, index: %d", i)
+				log.Fatalf("ERROR: Mismatched brackets, ip: %d", ip)
 			}
 
-			// Pop from slice
-			_, s = s[len(s)-1], s[:len(s)-1]
+			var temp int
+			// Pop from stack
+			temp, s = s[len(s)-1], s[:len(s)-1]
+
+			if tape[dp] <= 0 {
+				skipLoop = false
+				ip++
+				continue
+			}
+
+			if !skipLoop {
+				ip = temp
+				continue
+			}
 		}
+
+		ip++
 	}
 
 	if len(s) > 0 {
