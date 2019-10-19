@@ -16,17 +16,14 @@ var examples = map[string]bool{
 func main() {
 	for example, ok := range examples {
 		// Bracket parser
-		var s []rune
-		for _, c := range example {
-			if c == 91 {
-				s = append(s, c)
-				continue
-			}
-
-			if c == 93 && len(s) > 0 && s[len(s)-1] == 91 {
+		var s []int
+		for i, c := range example {
+			switch {
+			case c == 91:
+				s = append(s, i)
+			case c == 93 && len(s) > 0:
 				// Pop from slice
 				_, s = s[len(s)-1], s[:len(s)-1]
-				continue
 			}
 		}
 
