@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -34,7 +35,8 @@ func init() {
 		os.Exit(1)
 	}
 
-	// Remove all non-command characters
+	// Parse out commands
+	// This is the lazy person's approach ;-)
 	r := regexp.MustCompile("[^\\[\\]\\+-\\.,><]")
 	file = r.ReplaceAllLiteral(openFile, []byte(""))
 }
@@ -45,15 +47,10 @@ func main() {
 	dp := 0
 
 	var s []int // bracket stack
-	skipLoop := false
 
+MainLoop:
 	for ip < len(file) {
 		c := file[ip]
-
-		if skipLoop {
-			ip++
-			continue
-		}
 
 		switch c {
 		// +
@@ -73,20 +70,40 @@ func main() {
 			fmt.Print(string(tape[dp]))
 		// ,
 		case 44:
-			fmt.Println(",")
+			in := bufio.NewReader(os.Stdin)
+			c, err := in.ReadByte()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			tape[dp] = c
 		// [
-		// TODO (BUG): I need to capture each loop construct in its own
-		// struct and assign skipping instructions based on that. If we
-		// encounter a "[" with a 0 value, and then encounter another
-		// "[", followed by a "]", it will stop skipping. This is
-		// incorrect behavior as the original outer loop should
-		// determine skipping behavior
 		case 91:
+			// We ignore everything coming after the bracket, until
+			// we hit the matching closing bracket.
 			if tape[dp] <= 0 {
-				skipLoop = true
+				nestedBracket := 1
+				for ip < len(file) {
+					ip++
+					newC := file[ip]
+
+					switch newC {
+					case 91:
+						nestedBracket++
+					case 93:
+						nestedBracket--
+					}
+
+					if nestedBracket == 0 {
+						ip++
+						continue MainLoop
+					}
+				}
+			} else {
+				// Push the current position of the bracket
+				s = append(s, ip)
 			}
 
-			s = append(s, ip)
 		// ]
 		case 93:
 			if len(s) <= 0 {
@@ -94,20 +111,9 @@ func main() {
 				os.Exit(1)
 			}
 
-			var temp int
-			// Pop from stack
-			temp, s = s[len(s)-1], s[:len(s)-1]
-
-			if tape[dp] <= 0 {
-				skipLoop = false
-				ip++
-				continue
-			}
-
-			if !skipLoop {
-				ip = temp
-				continue
-			}
+			// Pop from stack and go back to last
+			ip, s = s[len(s)-1], s[:len(s)-1]
+			continue
 		}
 
 		ip++
