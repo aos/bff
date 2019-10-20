@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"io/ioutil"
+	"os"
+	"regexp"
 )
 
 // The main loop is a switch/case statement parsing each character by its
@@ -18,7 +20,24 @@ import (
 //	,	44 - input
 //
 
-const helloWorld = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
+var file []byte
+
+func init() {
+	if len(os.Args) <= 1 || len(os.Args) > 2 {
+		fmt.Println("USAGE: ./bf <file-name>")
+		os.Exit(0)
+	}
+
+	openFile, err := ioutil.ReadFile(os.Args[1])
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	// Remove all non-command characters
+	r := regexp.MustCompile("[^\\[\\]\\+-\\.,><]")
+	file = r.ReplaceAllLiteral(openFile, []byte(""))
+}
 
 func main() {
 	tape := make([]byte, 30000)
@@ -28,8 +47,8 @@ func main() {
 	var s []int // bracket stack
 	skipLoop := false
 
-	for ip < len(helloWorld) {
-		c := helloWorld[ip]
+	for ip < len(file) {
+		c := file[ip]
 
 		if skipLoop {
 			ip++
@@ -56,6 +75,12 @@ func main() {
 		case 44:
 			fmt.Println(",")
 		// [
+		// TODO (BUG): I need to capture each loop construct in its own
+		// struct and assign skipping instructions based on that. If we
+		// encounter a "[" with a 0 value, and then encounter another
+		// "[", followed by a "]", it will stop skipping. This is
+		// incorrect behavior as the original outer loop should
+		// determine skipping behavior
 		case 91:
 			if tape[dp] <= 0 {
 				skipLoop = true
@@ -65,7 +90,8 @@ func main() {
 		// ]
 		case 93:
 			if len(s) <= 0 {
-				log.Fatalf("ERROR: Mismatched brackets, ip: %d", ip)
+				fmt.Printf("ERROR: Mismatched brackets, ip: %d", ip)
+				os.Exit(1)
 			}
 
 			var temp int
@@ -88,6 +114,7 @@ func main() {
 	}
 
 	if len(s) > 0 {
-		log.Fatal("ERROR: Mismatched brackets")
+		fmt.Println("ERROR: Mismatched brackets")
+		os.Exit(1)
 	}
 }
