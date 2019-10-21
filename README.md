@@ -1,6 +1,6 @@
-## gofk (WORK IN PROGRESS)
+## gofk
 
-A brainfuck interpreter in Go
+A simple brainfuck interpreter in Go
 
 ### Reference
 
@@ -17,5 +17,10 @@ A brainfuck interpreter in Go
 | <    | Move pointer to the left                                          |
 | [    | Checks value, if `0` control passes to following matching `]`     |
 | ]    | Checks value, if nonzero control passes to following matching `[` |
-| .    | Outputs value, if greater than a byte, modulo 256 first           |
+| .    | Outputs value, if greater than a byte                             |
 | ,    | Requests one byte of input, and sets cell to value                |
+
+### Usage
+
+1. Clone repo and build
+2. `$ ./gofk <file-ending-in-.b-or-.bf>`

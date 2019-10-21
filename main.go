@@ -21,7 +21,7 @@ import (
 //	,	44 - input
 //
 
-var file []byte
+var commands []byte
 
 func init() {
 	if len(os.Args) <= 1 || len(os.Args) > 2 {
@@ -38,7 +38,7 @@ func init() {
 	// Parse out commands
 	// This is the lazy person's approach ;-)
 	r := regexp.MustCompile("[^\\[\\]\\+-\\.,><]")
-	file = r.ReplaceAllLiteral(openFile, []byte(""))
+	commands = r.ReplaceAllLiteral(openFile, []byte(""))
 }
 
 func main() {
@@ -49,8 +49,8 @@ func main() {
 	var s []int // bracket stack
 
 MainLoop:
-	for ip < len(file) {
-		c := file[ip]
+	for ip < len(commands) {
+		c := commands[ip]
 
 		switch c {
 		// +
@@ -83,9 +83,9 @@ MainLoop:
 			// we hit the matching closing bracket.
 			if tape[dp] <= 0 {
 				nestedBracket := 1
-				for ip < len(file) {
+				for ip < len(commands) {
 					ip++
-					newC := file[ip]
+					newC := commands[ip]
 
 					switch newC {
 					case 91:
