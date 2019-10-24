@@ -21,6 +21,8 @@ import (
 //	,	44 - input
 //
 
+const tapeSize = 30000
+
 var commands []byte
 
 func init() {
@@ -42,10 +44,10 @@ func init() {
 }
 
 func main() {
-	tape := make([]byte, 30000)
-	ip := 0
-	dp := 0
-
+	tape := make([]byte, tapeSize)
+	ip := 0 // instruction pointer
+	dp := 0 // data pointer
+	input := bufio.NewReader(os.Stdin)
 	var s []int // bracket stack
 
 MainLoop:
@@ -60,18 +62,26 @@ MainLoop:
 		case 45:
 			tape[dp]--
 		// >
+		// Loop around if at end
 		case 62:
-			dp++
+			if dp == tapeSize-1 {
+				dp = 0
+			} else {
+				dp++
+			}
 		// <
 		case 60:
-			dp--
+			if dp == 0 {
+				dp = tapeSize - 1
+			} else {
+				dp--
+			}
 		// .
 		case 46:
-			fmt.Print(string(tape[dp]))
+			fmt.Printf("%c", tape[dp])
 		// ,
 		case 44:
-			in := bufio.NewReader(os.Stdin)
-			c, err := in.ReadByte()
+			c, err := input.ReadByte()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
