@@ -56,7 +56,6 @@ func main() {
 	ip := 0 // instruction pointer
 	dp := 0 // data pointer
 	input := bufio.NewReader(os.Stdin)
-	var s []int // bracket stack
 
 MainLoop:
 	for ip < len(commands) {
@@ -118,28 +117,33 @@ MainLoop:
 						continue MainLoop
 					}
 				}
-			} else {
-				// Push the current position of the bracket
-				s = append(s, ip)
-			}
 
+				if ip > len(commands) {
+					fmt.Println("Error: Mismatched brackets")
+					os.Exit(1)
+				}
+			}
 		// ]
 		case 93:
-			if len(s) <= 0 {
-				fmt.Printf("ERROR: Mismatched brackets, ip: %d", ip)
-				os.Exit(1)
+			if tape[dp] != 0 {
+				nesting := 1
+				for ip > 0 && nesting > 0 {
+					ip--
+
+					switch commands[ip] {
+					case 93:
+						nesting++
+					case 91:
+						nesting--
+					}
+				}
 			}
 
-			// Pop from stack and go back to last
-			ip, s = s[len(s)-1], s[:len(s)-1]
-			continue
+		default:
+			fmt.Printf("Error: Bad character at ip: %d\n", ip)
+			os.Exit(1)
 		}
 
 		ip++
-	}
-
-	if len(s) > 0 {
-		fmt.Println("ERROR: Mismatched brackets")
-		os.Exit(1)
 	}
 }
