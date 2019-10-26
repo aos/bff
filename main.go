@@ -48,9 +48,8 @@ func main() {
 	ip := 0 // instruction pointer
 	dp := 0 // data pointer
 	input := bufio.NewReader(os.Stdin)
-	var s []int // bracket stack
+	jumpTable := computeJumptable(commands)
 
-MainLoop:
 	for ip < len(commands) {
 		c := commands[ip]
 
@@ -89,43 +88,14 @@ MainLoop:
 			tape[dp] = c
 		// [
 		case 91:
-			// We ignore everything coming after the bracket, until
-			// we hit the matching closing bracket.
-			if tape[dp] <= 0 {
-				nestedBracket := 1
-				for ip < len(commands) {
-					ip++
-
-					switch commands[ip] {
-					case 91:
-						nestedBracket++
-					case 93:
-						nestedBracket--
-					}
-
-					// Matched closing bracket, continue
-					// main program
-					if nestedBracket == 0 {
-						ip++
-						continue MainLoop
-					}
-				}
-			} else {
-				// Push the current position of the bracket
-				s = append(s, ip)
+			if tape[dp] == 0 {
+				ip = jumpTable[ip]
 			}
-
 		// ]
 		case 93:
-			if len(s) <= 0 {
-				fmt.Printf("ERROR: Mismatched brackets, ip: %d", ip)
-				os.Exit(1)
+			if tape[dp] != 0 {
+				ip = jumpTable[ip]
 			}
-
-			// Pop from stack position of matching "["
-			ip, s = s[len(s)-1], s[:len(s)-1]
-			continue
-
 		default:
 			fmt.Printf("Error: bad character, ip: %d", ip)
 			os.Exit(1)
@@ -133,9 +103,41 @@ MainLoop:
 
 		ip++
 	}
+}
 
-	if len(s) > 0 {
-		fmt.Println("ERROR: Mismatched brackets")
-		os.Exit(1)
+func computeJumptable(commands []byte) []int {
+	table := make([]int, len(commands))
+	ip := 0
+
+	for ip < len(commands) {
+		if commands[ip] == 91 {
+			nestedBracket := 1
+			seek := ip + 1
+
+			for nestedBracket > 0 && seek < len(commands) {
+				switch commands[seek] {
+				case 91:
+					nestedBracket++
+				case 93:
+					nestedBracket--
+				}
+
+				if nestedBracket == 0 {
+					table[ip] = seek
+					table[seek] = ip
+					break
+				}
+
+				seek++
+			}
+
+			if seek > len(commands) {
+				fmt.Println("Error: Mismatched brackets")
+				os.Exit(1)
+			}
+		}
+		ip++
 	}
+
+	return table
 }
