@@ -27,7 +27,7 @@ var commands []byte
 
 func init() {
 	if len(os.Args) <= 1 || len(os.Args) > 2 {
-		fmt.Println("USAGE: ./bf <file-name>")
+		fmt.Println("USAGE: ./gofk <file-name>")
 		os.Exit(0)
 	}
 
@@ -95,15 +95,16 @@ MainLoop:
 				nestedBracket := 1
 				for ip < len(commands) {
 					ip++
-					newC := commands[ip]
 
-					switch newC {
+					switch commands[ip] {
 					case 91:
 						nestedBracket++
 					case 93:
 						nestedBracket--
 					}
 
+					// Matched closing bracket, continue
+					// main program
 					if nestedBracket == 0 {
 						ip++
 						continue MainLoop
@@ -121,9 +122,13 @@ MainLoop:
 				os.Exit(1)
 			}
 
-			// Pop from stack and go back to last
+			// Pop from stack position of matching "["
 			ip, s = s[len(s)-1], s[:len(s)-1]
 			continue
+
+		default:
+			fmt.Printf("Error: bad character, ip: %d", ip)
+			os.Exit(1)
 		}
 
 		ip++
