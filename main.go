@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"runtime/pprof"
 )
 
 // The main loop is a switch/case statement parsing each character by its
@@ -44,6 +45,13 @@ func init() {
 }
 
 func main() {
+	// Get a CPU profile to see where time is spent the most
+	// go tool pprof cpu.out
+	// top 40, list main.
+	f, _ := os.Create("cpu.out")
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	tape := make([]byte, tapeSize)
 	ip := 0 // instruction pointer
 	dp := 0 // data pointer
