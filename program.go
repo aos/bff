@@ -9,6 +9,9 @@ import (
 	"regexp"
 )
 
+// TAPESIZE is the size of our tape
+const TAPESIZE = 30000
+
 // Program is our brainfuck program holding the instructions
 type Program struct {
 	instructions []byte
@@ -32,7 +35,8 @@ func ParseProgram(filename string) *Program {
 
 // Interpret takes in the program and interprets it
 // This is where the magic happens
-func Interpret(p *Program) {
+func Interpret(p *Program, TRACE bool) {
+	instCount := make(map[byte]int) // Used for tracing only
 	tape := make([]byte, TAPESIZE)
 	ip := 0 // instruction pointer
 	dp := 0 // data pointer
@@ -41,6 +45,10 @@ func Interpret(p *Program) {
 
 	for ip < len(p.instructions) {
 		c := p.instructions[ip]
+
+		if TRACE {
+			instCount[c]++
+		}
 
 		switch c {
 		// +
@@ -91,6 +99,17 @@ func Interpret(p *Program) {
 		}
 
 		ip++
+	}
+
+	if TRACE {
+		total := 0
+		fmt.Printf("\n*** Tracing activated, printing instruction count: ***\n")
+		for k, v := range instCount {
+			total += v
+			fmt.Printf("%c  --  %d\n", k, v)
+		}
+		fmt.Println("-----")
+		fmt.Printf("TOTAL: %d\n", total)
 	}
 }
 

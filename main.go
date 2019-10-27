@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 )
@@ -19,29 +18,17 @@ import (
 //	,	44 - input
 //
 
-// TAPESIZE is the size of our tape
-const TAPESIZE = 30000
-
-var flagTrace bool
 var program *Program
 
 func init() {
-	flag.BoolVar(&flagTrace,
-		"trace",
-		false,
-		"Traces the number of instructions",
-	)
-	flag.Parse()
-	args := flag.Args()
-
-	if len(args) == 0 || len(args) > 1 {
-		fmt.Println("USAGE: ./gofk [--trace] <file-name>")
+	if len(os.Args) <= 1 || len(os.Args) > 2 {
+		fmt.Println("USAGE: ./bff [-tags TRACE] <file-name>")
 		os.Exit(1)
 	}
 
-	program = ParseProgram(args[0])
+	program = ParseProgram(os.Args[1])
 }
 
 func main() {
-	Interpret(program)
+	Interpret(program, TRACEBF)
 }

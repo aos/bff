@@ -1,4 +1,4 @@
-## gofk
+## bff
 
 A simple brainfuck interpreter in Go
 
@@ -23,4 +23,4 @@ A simple brainfuck interpreter in Go
 ### Usage
 
 1. Clone repo and build
-2. `$ ./gofk <file-ending-in-.b-or-.bf>`
+2. `$ ./bff <file-ending-in-.b-or-.bf>`
