@@ -22,7 +22,7 @@ var program *Program
 
 func init() {
 	if len(os.Args) <= 1 || len(os.Args) > 2 {
-		fmt.Println("USAGE: ./bff [-tags TRACE] <file-name>")
+		fmt.Println("USAGE: ./bff <file-name>")
 		os.Exit(1)
 	}
 
