@@ -33,6 +33,12 @@ func ParseProgram(filename string) *Program {
 	}
 }
 
+// TranslateProgram takes in a program and translates it into a list of
+// operations
+func TranslateProgram(p *Program) {
+
+}
+
 // Interpret takes in the program and interprets it
 // This is where the magic happens
 func Interpret(p *Program, TRACE bool) {
